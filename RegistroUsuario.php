@@ -2,16 +2,20 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['nombre']) && isset($_POST['apellido'])) {
         // Asignar los valores a variables
-        $idRolPorDefecto = 2;
-        $nombres = $_POST['nombre'];
-        $apellidos = $_POST['apellido'];
-        $email = $_POST['email'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $numdocumento = $_POST['numdocumento'];
-        $fechaexpedicion = $_POST['fechaexpedicion'];
-        $fechanacimiento = $_POST['fechanacimiento'];
-        $direccion = $_POST['direccion'];
-        $numtelefono = $_POST['numtelefono'];
+        // Asignar los valores a variables
+$idRolPorDefecto = 2;
+$nombres = $_POST['nombre'];
+$apellidos = $_POST['apellido'];
+$email = $_POST['email'];
+$password = $_POST['contraseña'];
+$hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hashear la contraseña
+
+$numdocumento = $_POST['numdocumento'];
+$fechaexpedicion = $_POST['fechaexpedicion'];
+$fechanacimiento = $_POST['fechanacimiento'];
+$direccion = $_POST['direccion'];
+$numtelefono = $_POST['numtelefono'];
+
 
         $servername = "localhost";
         $username = "root";
@@ -29,18 +33,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmt = $conn->prepare($sql);
 
-        $stmt->bind_param("isssssssss", $idRolPorDefecto, $nombres, $apellidos, $email, $password, $numdocumento, $fechaexpedicion, $fechanacimiento, $direccion, $numtelefono);
+        if ($stmt) {
+            $stmt->bind_param("isssssssss", $idRolPorDefecto, $nombres, $apellidos, $email, $hashed_password, $numdocumento, $fechaexpedicion, $fechanacimiento, $direccion, $numtelefono);
 
-        if ($stmt->execute()) {
-            echo "Usuario registrado correctamente.";
+    
+            if ($stmt->execute()) {
+                header("Location: InicioSesionUsuario.php"); // Redireccionar a index.php
+                exit();
+            } else {
+                echo "Error al crear el registro: " . $stmt->error;
+            }
+            $stmt->close();
         } else {
-            echo "Error al crear el registro: " . $stmt->error;
+            echo "Error en la preparación de la consulta: " . $conn->error;
         }
-
-        $stmt->close();
+    
         $conn->close();
-    } else {
-        echo "Los campos de nombres y apellidos no están definidos en el formulario.";
     }
 }
 ?>
