@@ -1,28 +1,24 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['nombre']) && isset($_POST['apellido'])) {
-        // Asignar los valores a variables
-        // Asignar los valores a variables
-$idRolPorDefecto = 2;
-$nombres = $_POST['nombre'];
-$apellidos = $_POST['apellido'];
-$email = $_POST['email'];
-$password = $_POST['contraseña'];
-$hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hashear la contraseña
+        $idRolPorDefecto = 2;
+        $nombres = $_POST['nombre'];
+        $apellidos = $_POST['apellido'];
+        $email = $_POST['email'];
+        $password = $_POST['contraseña'];
 
-$numdocumento = $_POST['numdocumento'];
-$fechaexpedicion = $_POST['fechaexpedicion'];
-$fechanacimiento = $_POST['fechanacimiento'];
-$direccion = $_POST['direccion'];
-$numtelefono = $_POST['numtelefono'];
-
-
+        $numdocumento = $_POST['numdocumento'];
+        $fechaexpedicion = $_POST['fechaexpedicion'];
+        $fechanacimiento = $_POST['fechanacimiento'];
+        $direccion = $_POST['direccion'];
+        $numtelefono = $_POST['numtelefono'];
+        
         $servername = "localhost";
         $username = "root";
-        $password = "";
+        $db_password = "";
         $database = "SecureTravel1ng_Base";
 
-        $conn = new mysqli($servername, $username, $password, $database);
+        $conn = new mysqli($servername, $username, $db_password, $database);
 
         if ($conn->connect_error) {
             die("Conexión fallida: " . $conn->connect_error);
@@ -34,11 +30,10 @@ $numtelefono = $_POST['numtelefono'];
         $stmt = $conn->prepare($sql);
 
         if ($stmt) {
-            $stmt->bind_param("isssssssss", $idRolPorDefecto, $nombres, $apellidos, $email, $hashed_password, $numdocumento, $fechaexpedicion, $fechanacimiento, $direccion, $numtelefono);
+            $stmt->bind_param("isssssssss", $idRolPorDefecto, $nombres, $apellidos, $email, $password, $numdocumento, $fechaexpedicion, $fechanacimiento, $direccion, $numtelefono);
 
-    
             if ($stmt->execute()) {
-                header("Location: InicioSesionUsuario.php"); // Redireccionar a index.php
+                header("Location: login.php"); // Redireccionar a index.php
                 exit();
             } else {
                 echo "Error al crear el registro: " . $stmt->error;
@@ -47,7 +42,7 @@ $numtelefono = $_POST['numtelefono'];
         } else {
             echo "Error en la preparación de la consulta: " . $conn->error;
         }
-    
+
         $conn->close();
     }
 }
@@ -72,7 +67,7 @@ $numtelefono = $_POST['numtelefono'];
         <input type="email" id="email" name="email" required><br><br>
 
         <label for="password">Contraseña:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="contraseña" required><br><br>
 
         <label for="numdocumento">Número de Documento:</label>
         <input type="text" id="numdocumento" name="numdocumento" required><br><br>
