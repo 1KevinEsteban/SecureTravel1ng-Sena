@@ -28,46 +28,47 @@
     <div class="card-body login-card-body">
       <p class="login-box-msg">Iniciar sesion para comezar</p>
       <?php
-      session_start(); // Inicia la sesión
+session_start(); // Inicia la sesión
 
-      if (isset($_POST['login'])) {
-          $email = $_POST['correoelectronico'] ?? '';
-          $password = $_POST['contraseña'] ?? '';
-          include_once "dbsecure.php"; // Incluye tu archivo de configuración de la base de datos
+if (isset($_POST['login'])) {
+    $email = $_POST['correoelectronico'] ?? '';
+    $password = $_POST['contraseña'] ?? '';
+    include_once "dbsecure.php";
+    $con = mysqli_connect($host, $user, $pass, $db);
 
-          // Realiza la conexión
-          $con = mysqli_connect($host, $user, $pass, $db);
+    if ($con) {
+        $query = "SELECT idusuario, contraseña, nombres FROM usuarios WHERE correoelectronico = '$email'";
+        $result = mysqli_query($con, $query);
 
-          if ($con) {
-              $query = "SELECT idusuario, contraseña FROM usuarios WHERE correoelectronico = '$email'";
-              $result = mysqli_query($con, $query);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            var_dump($row);
 
-              if ($result && mysqli_num_rows($result) > 0) {
-                  $row = mysqli_fetch_assoc($result);
-                  $stored_password = $row['contraseña'];
+            $stored_password = $row['contraseña'];
 
-                  // Verifica la contraseña
-                  if ($password === $stored_password) {
-                      // Credenciales correctas - Inicia sesión y redirecciona
-                      $_SESSION['idusuario'] = $row['idusuario']; // Guarda el ID de usuario en la sesión
-                      header("Location: panel.php");
-                      exit();
-                  } else {
-                      // Contraseña incorrecta - Muestra la alerta
-                      echo "<script>alert('Credenciales incorrectas');</script>";
-                  }
-              } else {
-                  // El correo electrónico no está registrado - Muestra la alerta
-                  echo "<script>alert('Correo electrónico no registrado');</script>";
-              }
-          } else {
-              // Error de conexión a la base de datos - Muestra la alerta
-              die("<script>alert('Conexión fallida: " . mysqli_connect_error() . "');</script>");
-          }
+            // Verifica la contraseña
+            if ($password === $stored_password) {
+                // Credenciales correctas - Inicia sesión y redirecciona
+                $_SESSION['idusuario'] = $row['idusuario']; // Guarda el ID de usuario en la sesión
+                $_SESSION['nombres'] = $row['nombres']; // Guarda el nombre de usuario en la sesión
+                header("Location: panel.php");
+                exit();
+            } else {
+                // Contraseña incorrecta - Muestra la alerta
+                echo "<script>alert('Credenciales incorrectas');</script>";
+            }
+        } else {
+            // El correo electrónico no está registrado - Muestra la alerta
+            echo "<script>alert('Correo electrónico no registrado');</script>";
+        }
+    } else {
+        // Error de conexión a la base de datos - Muestra la alerta
+        die("<script>alert('Conexión fallida: " . mysqli_connect_error() . "');</script>");
+    }
 
-          mysqli_close($con);
-      }
-      ?>
+    mysqli_close($con);
+}
+?>
 
       <form  method="post">
         <div class="input-group mb-3">
